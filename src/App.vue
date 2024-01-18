@@ -33,6 +33,7 @@ const init = () => {
     console.log(`RtcPcA连接的ICE状态:${RtcPcA.iceConnectionState}`);
     console.log('ICE状态改变事件: ', event)
   })
+  createDataChannelA();
   RtcPcA.addEventListener("datachannel", (event) => {
     const receiveChannel = event.channel;
     receiveChannel.addEventListener("message", (event) => {
@@ -40,11 +41,11 @@ const init = () => {
       console.log(event)
     })
     receiveChannel.addEventListener("open", (event) => {
-      console.log("RtcPcA的dataChannel打开")
+      console.log("open event")
       console.log(event)
     })
     receiveChannel.addEventListener("close", (event) => {
-      console.log("RtcPcA的dataChannel关闭")
+      console.log("close event")
       console.log(event)
     })
   })
@@ -69,11 +70,17 @@ const init = () => {
       videoRef2.value.srcObject = event.streams[0]
     }
   })
-  RtcPcB.addEventListener("datachannel", (event) => {
-    const receiveChannel = event.channel;
-    console.log("RtcPcB-接受端：")
+  RtcPcB.ondatachannel = (event) => {
+    receiveChannel = event.channel;
+    receiveChannel.onmessage = (event) => {
+      console.log("receiveChannel.onmessage");
+      console.log(event);
+    }
+    receiveChannel.onclose = onReceiveChannelStateChange
+    receiveChannel.onopen = onReceiveChannelStateChange
+    console.log("RtcPcB.ondatachannel")
     console.log(event)
-  })
+  }
 }
 onMounted(() => {
   init()
@@ -179,23 +186,13 @@ const close = () => {
 }
 
 let sendChannel;
-const createDataChannel = async () => {
+let receiveChannel;
+const createDataChannelA = async () => {
   console.log(RtcPcA.connectionState)
-  sendChannel = await RtcPcA.createDataChannel("webrtc-data-channel-A", {ordered: true, maxRetransmits: 3})
-  sendChannel.onopen = (event) => {
-    console.log(event)
-    if (sendChannel) {
-      const state = sendChannel.readyState;
-      if (state === "open") {
-        console.log("open")
-      } else {
-        console.log(state)
-      }
-    }
-  }
-  sendChannel.onclose = (e) => {
-    console.log(e)
-  }
+  sendChannel = await RtcPcA.createDataChannel("webrtc-data-channel-A")
+
+  sendChannel.onopen = onSendChannelStateChange
+  sendChannel.onclose = onSendChannelStateChange
   console.log("创建RtcPcA data channel")
   console.log(sendChannel)
 }
@@ -205,7 +202,19 @@ const sendFromDataChannel = async () => {
     sendChannel.send("fuck")
   }
 }
+const onSendChannelStateChange = (e) => {
+  const state = sendChannel.readyState;
+  console.log("发送通道状态发生变化:", state)
+  console.log(e)
+}
+
+const onReceiveChannelStateChange = (e) => {
+  const state = receiveChannel.readyState;
+  console.log("接收通道状态发生变化:", state)
+  console.log(e)
+}
 </script>
+
 
 <template>
   <div>
@@ -226,7 +235,7 @@ const sendFromDataChannel = async () => {
     <div>
       <button @click="call">开始呼叫</button>
       <button @click="close">断开</button>
-      <button @click="createDataChannel">创建RtcA和RtcB的Data Channel</button>
+      <button @click="createDataChannelA">创建RtcA和RtcB的Data Channel</button>
       <button @click="sendFromDataChannel">RtcA发送data</button>
     </div>
     <button @click="screenShot">截屏</button>
