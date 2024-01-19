@@ -1,18 +1,22 @@
-class Cwebrtc {
-    static instance = null;
+const configuration = {
+    "iceServers": [{
+        "url": "stun:stun.l.google.com:19302"
+    }]
+};
 
-    constructor() {
-        if (!Cwebrtc.instance) {
-            Cwebrtc.instance = this;
-        }
-        return Cwebrtc.instance;
-    }
-
+class LWebrtc {
     // 本地设备列表
     localDevice = {
         audioIn: [],
         audioOut: [],
         videoIn: []
+    }
+
+    localRTCPC;
+
+    constructor() {
+        this.localRTCPC = new RTCPeerConnection(configuration);
+        console.log("本地RTCPeerConnection创建成功!")
     }
 
     // 默认限制
@@ -144,4 +148,4 @@ class Cwebrtc {
     }
 };
 
-export default Cwebrtc;
+export default LWebrtc;
