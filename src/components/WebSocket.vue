@@ -10,6 +10,7 @@ const connStore = useConnStore()
 const log = console.log;
 
 const handleSocketData = (data) => {
+  if (data.type === "heartPackage") return
   console.log(data)
   switch (data.type) {
     case "heartPackage":
@@ -37,6 +38,8 @@ const handleSocketData = (data) => {
       updateRoomInfo(data);
       break;
     default:
+      message.error("未知的事件类型");
+      console.log("未知的事件类型");
       break;
   }
 }
@@ -44,7 +47,7 @@ const handleSocketData = (data) => {
 const handleAnswer = async (data) => {
   const sdp = data.sdp
   await connStore.localPr.localRTCPC.setRemoteDescription(sdp)
-  console.log("已收到answer")
+  console.log("已收到answer并设置setRemoteDescription")
 }
 
 
@@ -54,14 +57,18 @@ const handleCandidate = async (data) => {
   await connStore.localPr.localRTCPC.addIceCandidate(data.candidate)
 }
 
-
 // 收到远程请求呼叫
 const handleOffer = async (data) => {
   const sdp = data.sdp
+  console.log("接收端收到offer sdp为：")
+  console.log(sdp)
   await connStore.localPr.localRTCPC.setRemoteDescription(sdp)
+  console.log("接收端已设置RemoteDescription")
   // 做回应
   const answer = await connStore.localPr.localRTCPC.createAnswer()
+  console.log("接收端已生成本地answer")
   await connStore.localPr.localRTCPC.setLocalDescription(answer)
+  console.log("接收端已设置本地 LocalDescription")
   const sendData = {
     type: eventNames.Answer,
     data: {
@@ -98,7 +105,6 @@ const connWS = () => {
   })
 
   webSocket.addEventListener("message", (event) => {
-    console.log("接收到数据", event)
     handleSocketData(JSON.parse(event.data));
   })
 

@@ -51,6 +51,7 @@ class LWebrtc {
     initInnerLocalDevice() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
             console.error("当前浏览器不支持获取媒体设备，请更换浏览器");
+            alert("当前浏览器不支持获取媒体设备，请更换浏览器");
             return;
         }
         navigator.mediaDevices.getUserMedia(this.defaultConstraints).then((stream) => {
@@ -74,6 +75,7 @@ class LWebrtc {
                         }
                     }
                 })
+                console.log(this.localDevice)
             }).catch(this.handleError);
         }).catch(this.handleError)
     }
@@ -101,9 +103,10 @@ class LWebrtc {
      */
     async getTargetIdStream(videoId, audioId) {
         const constraints = {
-            audioId: {
-                deviceId: audioId ? {exact: audioId} : null
-            },
+            // audioId: {
+            //     deviceId: audioId ? {exact: audioId} : null
+            // },
+            audioId: false,
             videoId: {
                 ...this.defaultConstraints.video,
                 deviceId: videoId ? {exact: videoId} : null
@@ -145,6 +148,11 @@ class LWebrtc {
                 callback?.call(this, stream)
             })
             .catch(this.handleError);
+    }
+
+    requestCamera = async ()=>{
+        const cameraResult = await navigator.permissions.query({ name: 'camera' });
+        return cameraResult;
     }
 };
 

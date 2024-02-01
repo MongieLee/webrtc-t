@@ -1,4 +1,5 @@
-const wsUrl = "ws://127.0.0.1:8080/ws";
+// const wsUrl = "ws://192.168.102.110:8080/ws";
+const wsUrl = "wss://mongielee.top:8080/ws";
 const supportEventNameList = ["message", "close", "error", "open"];
 
 class LWebSocket {

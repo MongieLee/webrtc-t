@@ -8,3 +8,6 @@ const app = createApp(App);
 app.use(router);
 app.use(createPinia());
 app.mount('#app');
+
+import VConsole from 'vconsole'
+const vConsole = new VConsole()

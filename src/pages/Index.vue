@@ -1,6 +1,6 @@
 <script setup>
 import {ref} from "vue"
-import ConnectSocket from "../components/ConnectSocket.vue";
+import ConnectSocket from "../components/WebSocket.vue";
 import WebRtc from "../components/WebRtc.vue";
 import useUserStore from "../store/user.js";
 
@@ -55,9 +55,6 @@ const contentStyle = {
   minHeight: 120,
   lineHeight: '120px',
 };
-const footerStyle = {
-  textAlign: 'center',
-};
 
 const userStore = useUserStore()
 </script>
@@ -84,21 +81,7 @@ const userStore = useUserStore()
           <connect-socket/>
           <web-rtc/>
         </a-card>
-        <div style="display: flex">
-          <button @click="openScreen">open Screen</button>
-        </div>
-        <div>
-          <button @click="close">断开</button>
-          <button @click="createDataChannelA">创建RtcA和RtcB的Data Channel</button>
-          <button @click="sendFromDataChannel">RtcA发送data</button>
-        </div>
-<!--        <button @click="screenShot">截屏</button>-->
-<!--        <div>-->
-<!--          <div>截屏列表</div>-->
-<!--          <canvas ref="canvasRef" class="m-canvas" style="bottom: 0;right: 2px;"/>-->
-<!--        </div>-->
       </a-layout-content>
-      <a-layout-footer :style="footerStyle">Footer</a-layout-footer>
     </a-layout>
   </div>
 </template>
